@@ -19,11 +19,3 @@ class ExampleSocialAuthExceptionMiddleware(SocialAuthExceptionMiddleware):
             return reverse('done')
         else:
             return reverse('error')
-
-    def process_request(self, request):
-        request.META['eppn'] = 'jbau@stanford.edu'
-        request.META['sn'] = 'Bau'
-        request.META['givenName'] = 'Jason'
-        request.META['displayName'] = 'Jason Bau'
-        return None
-
