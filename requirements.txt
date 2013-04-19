@@ -1,5 +1,6 @@
-django>=1.2.5
+django==1.4.3
 oauth2>=1.5.167
 python_openid>=2.2
 selenium>=2.29.0
 mock==1.0.1
+South==0.7.6

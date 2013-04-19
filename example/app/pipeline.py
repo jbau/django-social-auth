@@ -1,4 +1,7 @@
 from django.http import HttpResponseRedirect
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def redirect_to_form(*args, **kwargs):
@@ -25,3 +28,8 @@ def first_name(request, *args, **kwargs):
         user = kwargs['user']
         user.first_name = request.session.get('saved_first_name')
         user.save()
+
+def logme(request, *args, **kwargs):
+    print('me')
+    logger.info(args)
+    logger.info(kwargs)

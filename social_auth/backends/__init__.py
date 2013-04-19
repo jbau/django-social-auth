@@ -907,12 +907,15 @@ def get_backends(force_load=False):
         for auth_backend in setting('AUTHENTICATION_BACKENDS'):
             mod, cls_name = auth_backend.rsplit('.', 1)
             module = import_module(mod)
+            print(module)
+            print(cls_name)
             backend = getattr(module, cls_name)
 
             if issubclass(backend, SocialAuthBackend):
                 name = backend.name
                 backends = getattr(module, 'BACKENDS', {})
                 if name in backends and backends[name].enabled():
+                    print(backends[name])
                     BACKENDSCACHE[name] = backends[name]
     return BACKENDSCACHE
 

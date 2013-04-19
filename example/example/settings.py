@@ -24,7 +24,7 @@ DATABASES = {
     }
 }
 
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'America/Los_Angeles'
 LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 USE_I18N = True
@@ -61,6 +61,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'example.middleware.ExampleSocialAuthExceptionMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -94,14 +95,35 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+    'formatters' : {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(pathname)s -- %(funcName)s -- line# %(lineno)d : %(message)s '
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'logfile': {
+            'level':'INFO', #making this DEBUG will log _all_ SQL queries.
+            'class':'logging.handlers.RotatingFileHandler',
+            'formatter':'verbose',
+            'filename': '/var/log/django/socialauth-django.log',
+            'maxBytes': 1024*1024*500,
+            'backupCount': 3,
+        },
     },
     'loggers': {
+        '': {
+            'handlers':['mail_admins','logfile'],
+            'propagate': True,
+            'level':'DEBUG',
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
@@ -146,6 +168,7 @@ AUTHENTICATION_BACKENDS = (
     'social_auth.backends.contrib.readability.ReadabilityBackend',
     'social_auth.backends.steam.SteamBackend',
     'social_auth.backends.reddit.RedditBackend',
+    'social_auth.backends.stanford_shib.StanfordShibBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -161,6 +184,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 LOGIN_REDIRECT_URL = '/'
 
 SOCIAL_AUTH_PIPELINE = (
+    'app.pipeline.logme',
     'social_auth.backends.pipeline.social.social_auth_user',
     'social_auth.backends.pipeline.associate.associate_by_email',
     'social_auth.backends.pipeline.misc.save_status_to_session',

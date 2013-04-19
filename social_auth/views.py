@@ -27,6 +27,8 @@ PIPELINE_KEY = setting('SOCIAL_AUTH_PARTIAL_PIPELINE_KEY', 'partial_pipeline')
 @dsa_view(setting('SOCIAL_AUTH_COMPLETE_URL_NAME', 'socialauth_complete'))
 def auth(request, backend):
     """Start authentication process"""
+    print("auth")
+    print(backend)
     return auth_process(request, backend)
 
 
@@ -35,6 +37,8 @@ def auth(request, backend):
 def complete(request, backend, *args, **kwargs):
     """Authentication complete view, override this view if transaction
     management doesn't suit your needs."""
+    print("complete")
+    print(backend)
     if request.user.is_authenticated():
         return associate_complete(request, backend, *args, **kwargs)
     else:
@@ -74,6 +78,8 @@ def disconnect(request, backend, association_id=None):
 
 def auth_process(request, backend):
     """Authenticate using social backend"""
+    print(backend)
+    print(backend)
     data = request.POST if request.method == 'POST' else request.GET
 
     # Save extra data into session.
@@ -91,7 +97,9 @@ def auth_process(request, backend):
 
     # Clean any partial pipeline info before starting the process
     clean_partial_pipeline(request)
-
+    print(backend.uses_redirect)
+    print(backend.auth_url())
+    #print(backend.auth_html())
     if backend.uses_redirect:
         return HttpResponseRedirect(backend.auth_url())
     else:
