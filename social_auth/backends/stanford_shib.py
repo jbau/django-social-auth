@@ -4,6 +4,7 @@ not do any SAML traffic at all--instead it relies on Apache and modshib to
 pass authenticated credentials via environment variables.  So this essentially
 just reads environment to get user details.
 """
+import copy
 from urllib import urlencode
 
 from django.contrib.auth import authenticate
@@ -21,28 +22,17 @@ class StanfordShibBackend(SocialAuthBackend):
     name = 'stanford_shib'
 
     def get_user_id(self, details, response):
-        """Use email as ID"""
-        return details['email']
+        """Use username as ID"""
+        return details['username']
 
     def get_user_details(self, response):
-        """Return user details, BrowserID only provides Email."""
-        # {'status': 'okay',
-        #  'audience': 'localhost:8000',
-        #  'expires': 1328983575529,
-        #  'email': 'name@server.com',
-        #  'issuer': 'login.persona.org'}
-        email = response['email']
-        return {'username': email.split('@', 1)[0],
-                'email': email,
-                'fullname': '',
-                'first_name': '',
-                'last_name': ''}
+        """Return user details.  Just copy response"""
+        return copy(response)
 
     def extra_data(self, user, uid, response, details):
         """Return users extra data"""
         return {
-            'audience': response['audience'],
-            'issuer': response['issuer']
+            'idp': response['idp'],
         }
 
 
@@ -66,7 +56,7 @@ class StanfordShibAuth(BaseAuth):
            We rely on the web server layer (Apache) to have already gone through
            the authentication at the URL for the view.  So we only need to
            read the parameters provided in request.META
-        """"
+        """
         request = self.request
         meta = request.META
         if meta.get('eppn', ''):
@@ -84,7 +74,11 @@ class StanfordShibAuth(BaseAuth):
                 'mail'       : meta.get('mail') if meta.get('mail', '') else \
                                meta.get('eppn')
             }
-            return HttpResponse(unicode(shib))
+            kwargs.update({
+                'auth': self,
+                'response': shib,
+            })
+            return authenticate(*args, **kwargs)
         else:
             raise AuthFailed(self)
         
