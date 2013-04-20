@@ -79,7 +79,6 @@ def disconnect(request, backend, association_id=None):
 def auth_process(request, backend):
     """Authenticate using social backend"""
     print(backend)
-    print(backend)
     data = request.POST if request.method == 'POST' else request.GET
 
     # Save extra data into session.
@@ -97,9 +96,6 @@ def auth_process(request, backend):
 
     # Clean any partial pipeline info before starting the process
     clean_partial_pipeline(request)
-    print(backend.uses_redirect)
-    print(backend.auth_url())
-    #print(backend.auth_html())
     if backend.uses_redirect:
         return HttpResponseRedirect(backend.auth_url())
     else:

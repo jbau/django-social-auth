@@ -4,7 +4,6 @@ not do any SAML traffic at all--instead it relies on Apache and modshib to
 pass authenticated credentials via environment variables.  So this essentially
 just reads environment to get user details.
 """
-import copy
 from urllib import urlencode
 
 from django.contrib.auth import authenticate
@@ -27,8 +26,8 @@ class StanfordShibBackend(SocialAuthBackend):
 
     def get_user_details(self, response):
         """Return user details.  Just copy response"""
-        return copy(response)
-
+        return response.copy()
+    
     def extra_data(self, user, uid, response, details):
         """Return users extra data"""
         return {
@@ -71,12 +70,13 @@ class StanfordShibAuth(BaseAuth):
                                    if meta.get('displayName','') else \
                                "%s %s" % \
                                       (shib['first_name'], shib['last_name']),
-                'mail'       : meta.get('mail') if meta.get('mail', '') else \
+                'email'      : meta.get('mail') if meta.get('mail', '') else \
                                meta.get('eppn')
             }
             kwargs.update({
                 'auth': self,
                 'response': shib,
+                self.AUTH_BACKEND.name: True
             })
             return authenticate(*args, **kwargs)
         else:

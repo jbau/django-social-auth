@@ -19,3 +19,14 @@ class ExampleSocialAuthExceptionMiddleware(SocialAuthExceptionMiddleware):
             return reverse('done')
         else:
             return reverse('error')
+
+#    def process_request(self, request):
+#        shib = {
+#            'eppn'       : 'jbau1@stanford.edu',
+#            'sn'         : 'Bau',
+#            'givenName'  : 'Jason',
+#            'Shib-Identity-Provider'        : 'idp.stanford.edu',
+#            'displayName'   : 'Jason Hsi-Chieh Bau',
+#            'email'       : 'jbau@stanford.edu',
+#        }
+#        request.META.update(shib)

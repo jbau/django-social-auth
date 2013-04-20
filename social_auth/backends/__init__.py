@@ -92,6 +92,8 @@ class SocialAuthBackend(object):
         if not (self.name and kwargs.get(self.name) and 'response' in kwargs):
             return None
 
+        print("DFD:" + self.name)
+
         response = kwargs.get('response')
         pipeline = PIPELINE
         kwargs = kwargs.copy()
@@ -100,14 +102,19 @@ class SocialAuthBackend(object):
         if 'pipeline_index' in kwargs:
             pipeline = pipeline[kwargs['pipeline_index']:]
         else:
+            print('b')
             kwargs['details'] = self.get_user_details(response)
+            print('c')
             kwargs['uid'] = self.get_user_id(kwargs['details'], response)
+            print('d')
             kwargs['is_new'] = False
-
+            
+        print('e')
         out = self.pipeline(pipeline, *args, **kwargs)
         if not isinstance(out, dict):
             return out
 
+        print(out)
         social_user = out.get('social_user')
         if social_user:
             # define user.social_user attribute to track current social
@@ -907,15 +914,12 @@ def get_backends(force_load=False):
         for auth_backend in setting('AUTHENTICATION_BACKENDS'):
             mod, cls_name = auth_backend.rsplit('.', 1)
             module = import_module(mod)
-            print(module)
-            print(cls_name)
             backend = getattr(module, cls_name)
 
             if issubclass(backend, SocialAuthBackend):
                 name = backend.name
                 backends = getattr(module, 'BACKENDS', {})
                 if name in backends and backends[name].enabled():
-                    print(backends[name])
                     BACKENDSCACHE[name] = backends[name]
     return BACKENDSCACHE
 
